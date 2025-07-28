@@ -1,0 +1,103 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: white;
+}
+
+.navbar {
+    background-color: #000;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 24px;
+    align-items: center;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.nav-links a:hover {
+    color: red;
+    text-decoration: underline;
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 100px;
+}
+
+input[type="text"] {
+    width: 400px;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #003344;
+    border-radius: 6px;
+    color: #333;
+}
+
+input[type="text"]::placeholder {
+    color: #ccc;
+}
+
+/* 讓所有按鈕寬高一致 */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    height: 40px;
+    min-width: 80px;
+    text-align: center;
+    line-height: 1;
+    color: white;                        /* 和輸入框字體一致 */
+    background-color: #000;           /* 背景一致 */
+    border: 2px solid #003344;         /* 和輸入框邊框一致 */
+    border-radius: 6px;                /* 和輸入框圓角一致 */
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    color: #000;
+    background-color: #f0f0f0;
+}
+.input-row,
+.format-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 16px; /* 格式按鈕與上方分開 */
+}
+
+.input-row input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.input-row button {
+    margin-left: 10px;
+}
+
+.tab-content {
+    display: none;
+    margin: 20px;
+}
+
+.tab-content.active {
+    display: flex;
+    flex-direction: column; /* ✅ 改為垂直排列 */
+    justify-content: center;
+    align-items: center;     /* ✅ 元素置中對齊 */
+    margin-top: 100px;
+}
+
+
+

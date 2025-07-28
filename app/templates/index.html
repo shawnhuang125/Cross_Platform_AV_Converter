@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Converter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="logo">Audio Converter</div>
+        <div class="nav-links">
+            <a href="#" onclick="switchTab('youtube')">Youtube</a>
+            <a href="#" onclick="switchTab('x')">X</a>
+        </div>
+    </div>
+
+    <!-- Youtube 區塊 -->
+    <div id="youtube" class="tab-content active">
+        <div class="input-row">
+            <input type="text" id="youtube-url" placeholder="Youtube URL">
+            <button onclick="verifyDownload('youtube')">Convert</button>
+        </div>
+        
+        <div class="format-buttons"> <!-- 分行顯示 -->
+            <button id="youtube-mp3-button" style="display:none;">MP3</button>
+            <button id="youtube-mp4-button" style="display:none;">MP4</button>
+        </div>
+    </div>
+
+    
+    <!-- X 區塊 -->
+    <div id="x" class="tab-content">
+        <div class="input-row"> 
+            <input type="text" id="x-url" placeholder="X URL">
+            <button onclick="verifyDownload('x')">Convert</button>
+        </div>
+
+        <!-- cookie 檔案輸入框（自動觸發時用）-->
+        <input type="file" id="cookie-file" style="display: none" accept=".txt">
+
+        <!-- 顯示格式按鈕區域 -->
+        <div class="format-buttons">
+            <button id="x-mp3-button" style="display:none;">MP3</button>
+            <button id="x-mp4-button" style="display:none;">MP4</button>
+        </div>
+    </div>
+
+    <div id="result" style="display:none;"></div>
+
+
+    <script>
+        //
+        function resetUI(platform) {
+        // 清空 URL 欄位
+        document.getElementById(platform + '-url').value = '';
+        // 隱藏所有格式按鈕（只針對這個平台）
+        const mp3Btn = document.getElementById(platform + '-mp3-button');
+        const mp4Btn = document.getElementById(platform + '-mp4-button');
+        if (mp3Btn) mp3Btn.style.display = 'none';
+        if (mp4Btn) mp4Btn.style.display = 'none';
+        }
+        // 切換選項卡
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabName.toLowerCase()).classList.add('active');
+            document.getElementById("result").innerText = ""; 
+        }
+        //負責發送與接收回傳訊息
+        function verifyDownload(platform) {
+        // 獲取對應平台的 URL 輸入框
+        const input = document.getElementById(platform + '-url');
+        // 獲取 cookie 檔案輸入框
+        // 這裡假設 cookie 檔案是用於 X 平台
+        const cookieInput = document.getElementById('cookie-file');
+        // 獲取輸入的 URL
+        const url = input.value.trim();
+
+        if (!url) {
+            alert('請輸入有效的 URL');
+            return;
+        }
+
+        //第一次請求,負責發送http post請求至/download_verify
+        fetch('/download_verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                url: url,
+                platform: platform
+            })
+        })
+        .then(response => response.json())//負責接收回傳訊息
+        .then(data => {
+            if (data.status === 'success') {
+                alert('下載成功: ' + data.message + '\n可用格式: ' + data.available_formats.join(', '));
+                // 顯示 mp4/mp3 按鈕放這裡
+                const mp3Button = document.getElementById(platform + '-mp3-button');
+                const mp4Button = document.getElementById(platform + '-mp4-button');
+                if (data.available_formats.includes('mp3')) {//如果可用格式包含 mp3
+                    mp3Button.style.display = 'inline-block';//顯示 mp3 按鈕
+                }
+                if (data.available_formats.includes('mp4')) {//如果可用格式包含 mp4
+                    mp4Button.style.display = 'inline-block';//顯示 mp4 按鈕
+                }
+            } else if (  data.message === 'cookie_required' ) {
+                // 若後端回傳需要 cookie，跳出選擇器
+                alert('請上傳 cookie 檔案');
+                cookieInput.click();
+
+                cookieInput.onchange = () => {
+                    const file = cookieInput.files[0];
+                    if(!file || !file.name.endsWith('.txt')) {
+                        alert('請選擇 .txt 格式的 cookie 檔案');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('url', url);
+                    formData.append('platform', platform);
+                    formData.append('cookie_file', file);
+                    // 第二次請求，發送 cookie 檔案
+                    fetch('/download_verify', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.status === 'success') {
+                            alert('下載成功: ' + result.message);
+                            // 如果cookie送出後結果顯示'下載成功: ' + result.message則顯示 mp4/mp3 按鈕
+                            const mp3Button = document.getElementById(platform + '-mp3-button');
+                            const mp4Button = document.getElementById(platform + '-mp4-button');
+                            if (result.available_formats.includes('mp3')) {//如果可用格式包含 mp3
+                                mp3Button.style.display = 'inline-block';   //顯示 mp3 按鈕
+                            }
+                            if (result.available_formats.includes('mp4')) { //如果可用格式包含 mp4
+                                mp4Button.style.display = 'inline-block';   //顯示 mp4 按鈕
+                            }
+                        } else {
+                            alert('下載失敗: ' + result.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('下載過程中發生錯誤');
+                    });
+                }
+            } else {
+                alert('驗證失敗: ' + data.message);
+            }
+
+        })  
+        .catch(error => {
+            console.error('Error:', error);
+            alert('下載過程中發生錯誤');
+        });     
+    }
+
+    </script>
+
+</body>
+</html>
