@@ -99,5 +99,40 @@ button:hover {
     margin-top: 100px;
 }
 
+.resolution-buttons {
+  display: flex;
+  flex-direction: row; /* 讓它橫向排列 */
+  flex-wrap: wrap;     /* 自動換行（如果需要） */
+  gap: 10px;           /* 按鈕間距 */
+  margin-top: 15px;    /* 與 MP4 按鈕的間距 */
+  justify-content: center; /* 水平置中 */
+}
 
+.resolution-button {
+  display: flex;
+  align-items: center;
+  border: 1px solid #000;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.left-part {
+  background-color: black;
+  color: white;
+  padding: 5px 10px;
+}
+.right-part {
+  all: unset; /* 移除所有預設按鈕樣式 */
+  padding: 5px 10px;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+}
+
+.right-part:hover {
+  background-color: #ddd;
+}
+.hidden {
+  display: none !important;
+}
 

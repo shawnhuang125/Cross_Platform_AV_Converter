@@ -47,20 +47,29 @@ def validate_url(url, cookie_path = None):
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
         
-        ##解析支援格式
+        # 解析支援格式
         available_formats = set()
         audio_exts = {'mp3', 'm4a', 'aac', 'opus'}
         video_exts = {'mp4', 'webm', 'mov', 'mkv'}
-
+        # 檢查音訊和視訊格式
         for f in info.get('formats', []):
             ext = f.get('ext')
-            if ext in audio_exts:
-                available_formats.add(ext)
+            acodec = f.get('acodec')
+            vcodec = f.get('vcodec')
+
+            # 檢查音訊和視訊編解碼器
+            if acodec and acodec != 'none' and vcodec == 'none':
+                available_formats.add("mp3")
+            elif acodec and acodec != 'none' and vcodec and vcodec != 'none':
+                available_formats.add("mp4")
+            # 若 codec 判斷不到，再用 ext fallback
+            elif ext in audio_exts:
+                available_formats.add('mp3')
             elif ext in video_exts:
-                available_formats.add(ext)
-        #印出可用格式
-        print("/validate:可用格式：", available_formats , "\n")
-        return True, f"網址有效, 標題：{info.get('title', '未知')}", list(available_formats)#回傳可用格式
+                available_formats.add('mp4')
+        # 印出可用格式
+        print("/validate:可用格式：", available_formats, "\n")
+        return True, f"網址有效, 標題：{info.get('title', '未知')}", list(available_formats)  # 回傳可用格式
 
     except Exception as e:
         error_msg = str(e)

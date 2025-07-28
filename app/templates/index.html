@@ -23,12 +23,42 @@
         </div>
         
         <div class="format-buttons"> <!-- 分行顯示 -->
-            <button id="youtube-mp3-button" style="display:none;">MP3</button>
-            <button id="youtube-mp4-button" style="display:none;">MP4</button>
+            <button id="youtube-mp3-button" class="hidden" onclick="showDownload('mp3', 'youtube')">MP3</button>
+            <button id="youtube-mp4-button" class="hidden" onclick="showDownload('mp4', 'youtube')">MP4</button>
+        </div>
+        <!-- mp3 的下載按鈕（預設隱藏） -->
+        <div id="youtube-mp3Download" class="hidden" style="margin-top: 10px;">
+            <button onclick="downloadFormat('mp3', 'youtube')">Download MP3</button>
+        </div>
+        <!-- mp4 的下載按鈕（預設隱藏） -->
+        <div id="youtube-mp4Download" class="resolution-buttons hidden">    
+            <div class="resolution-button">
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('360p', 'youtube')">360p</button>
+            </div>
+            <div class="resolution-button">
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('480p', 'youtube')">480p</button>
+            </div>
+            <div class="resolution-button">
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('720p', 'youtube')">720p</button>
+            </div>
+            <div class="resolution-button">
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('1080p', 'youtube')">1080p</button>
+            </div>
+            <div class="resolution-button">
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('2k', 'youtube')">2k</button>
+            </div>
+            <div class="resolution-button">
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('4k', 'youtube')">4k</button>
+            </div>
         </div>
     </div>
 
-    
     <!-- X 區塊 -->
     <div id="x" class="tab-content">
         <div class="input-row"> 
@@ -41,8 +71,39 @@
 
         <!-- 顯示格式按鈕區域 -->
         <div class="format-buttons">
-            <button id="x-mp3-button" style="display:none;">MP3</button>
-            <button id="x-mp4-button" style="display:none;">MP4</button>
+            <button id="x-mp3-button" class="hidden" onclick="showDownload('mp3', 'x')">MP3</button>
+            <button id="x-mp4-button" class="hidden" onclick="showDownload('mp4', 'x')">MP4</button>
+        </div>
+        <!-- mp3 的下載按鈕（預設隱藏） -->
+        <div id="x-mp3Download" class="hidden" style="margin-top: 10px;">
+            <button onclick="downloadFormat('mp3', 'x')">Download MP3</button>
+        </div>
+        <!-- mp4 的下載按鈕（預設隱藏） -->
+        <div id="x-mp4Download" class="resolution-buttons hidden">    
+            <div class="resolution-button" >
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('360p', 'x')">360p</button>
+            </div>
+            <div class="resolution-button">
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('480p', 'x')">480p</button>
+            </div>
+            <div class="resolution-button">
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('720p', 'x')">720p</button>
+            </div>
+            <div class="resolution-button">
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('1080p', 'x')">1080p</button>
+            </div>
+            <div class="resolution-button">
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('2k', 'x')">2k</button>
+            </div>
+            <div class="resolution-button">
+                <span class="left-part">MP4</span>
+                <button class="right-part" onclick="downloadResolution('4k', 'x')">4k</button>
+            </div>
         </div>
     </div>
 
@@ -50,27 +111,57 @@
 
 
     <script>
-        //
-        function resetUI(platform) {
-        // 清空 URL 欄位
-        document.getElementById(platform + '-url').value = '';
-        // 隱藏所有格式按鈕（只針對這個平台）
-        const mp3Btn = document.getElementById(platform + '-mp3-button');
-        const mp4Btn = document.getElementById(platform + '-mp4-button');
-        if (mp3Btn) mp3Btn.style.display = 'none';
-        if (mp4Btn) mp4Btn.style.display = 'none';
+        function showElement(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
+    }
+
+    function hideElement(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    }
+
+    // 清空並隱藏指定平台的 UI 元件
+    function resetUI(platform) {
+    // 清空 URL 欄位
+    const urlInput = document.getElementById(platform + '-url');
+    if (urlInput) urlInput.value = '';
+
+    // 隱藏格式選擇按鈕
+    hideElement(platform + '-mp3-button');
+    hideElement(platform + '-mp4-button');
+
+    // 隱藏下載按鈕區域
+    hideElement(platform + '-mp3Download');
+    hideElement(platform + '-mp4Download');
+    // 隱藏解析度按鈕區域
+    const resolutionButtons = document.querySelectorAll(`#${platform} .resolution-buttons`);
+    resolutionButtons.forEach(btn => hideElement(btn.id));
+    }
+    // 切換選項卡
+    function switchTab(tabName) {
+    const lowerName = tabName.toLowerCase();
+
+    // 切換 .tab-content 的 active 狀態
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.getElementById(lowerName).classList.add('active');
+
+    // 清空結果顯示區
+    document.getElementById("result").innerText = "";
+
+    // 只重置非當前平台的 UI
+    ['youtube', 'x'].forEach(platform => {
+        if (platform !== lowerName) {
+            resetUI(platform);
         }
-        // 切換選項卡
-        function switchTab(tabName) {
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.getElementById(tabName.toLowerCase()).classList.add('active');
-            document.getElementById("result").innerText = ""; 
-        }
-        //負責發送與接收回傳訊息
-        function verifyDownload(platform) {
+    });
+    }
+
+    //負責發送與接收回傳訊息
+    function verifyDownload(platform) {
         // 獲取對應平台的 URL 輸入框
         const input = document.getElementById(platform + '-url');
         // 獲取 cookie 檔案輸入框
@@ -102,13 +193,13 @@
                 // 顯示 mp4/mp3 按鈕放這裡
                 const mp3Button = document.getElementById(platform + '-mp3-button');
                 const mp4Button = document.getElementById(platform + '-mp4-button');
-                if (data.available_formats.includes('mp3')) {//如果可用格式包含 mp3
-                    mp3Button.style.display = 'inline-block';//顯示 mp3 按鈕
+                if (data.available_formats.includes('mp3')) {
+                    showElement(platform + '-mp3-button');
                 }
-                if (data.available_formats.includes('mp4')) {//如果可用格式包含 mp4
-                    mp4Button.style.display = 'inline-block';//顯示 mp4 按鈕
+                if (data.available_formats.includes('mp4')) {
+                    showElement(platform + '-mp4-button');
                 }
-            } else if (  data.message === 'cookie_required' ) {
+            } else if (data.message === 'cookie_required') {
                 // 若後端回傳需要 cookie，跳出選擇器
                 alert('請上傳 cookie 檔案');
                 cookieInput.click();
@@ -136,11 +227,11 @@
                             // 如果cookie送出後結果顯示'下載成功: ' + result.message則顯示 mp4/mp3 按鈕
                             const mp3Button = document.getElementById(platform + '-mp3-button');
                             const mp4Button = document.getElementById(platform + '-mp4-button');
-                            if (result.available_formats.includes('mp3')) {//如果可用格式包含 mp3
-                                mp3Button.style.display = 'inline-block';   //顯示 mp3 按鈕
+                            if (result.available_formats.includes('mp3')) {
+                                showElement(platform + '-mp3-button');
                             }
-                            if (result.available_formats.includes('mp4')) { //如果可用格式包含 mp4
-                                mp4Button.style.display = 'inline-block';   //顯示 mp4 按鈕
+                            if (result.available_formats.includes('mp4')) {
+                                showElement(platform + '-mp4-button');
                             }
                         } else {
                             alert('下載失敗: ' + result.message);
@@ -160,6 +251,27 @@
             console.error('Error:', error);
             alert('下載過程中發生錯誤');
         });     
+    }
+    function showDownload(format, platform) {
+            // 先全部隱藏
+        hideElement(`${platform}-mp3Download`);
+        hideElement(`${platform}-mp4Download`);
+
+        // 顯示指定格式
+        if (format === 'mp3') {
+            showElement(`${platform}-mp3Download`);
+        } else if (format === 'mp4') {
+            showElement(`${platform}-mp4Download`);
+        }
+        // 額外：顯示對應解析度按鈕區塊（例如 id="x-mp4Download"）
+        const resolutionBlock = document.getElementById(`${platform}-mp4Download`);
+        if (resolutionBlock) resolutionBlock.classList.remove('hidden');
+    }
+
+    function downloadResolution(resolution, platform) {
+    alert(`準備下載 ${platform} 的 ${resolution} MP4`);
+    // 這裡可以發送後端請求或下載
+    // 例如：window.location.href = `/download?platform=${platform}&resolution=${resolution}`;
     }
 
     </script>
