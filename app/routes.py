@@ -37,14 +37,15 @@ def download_verify():
             cookie_file.save(cookie_path)
         
         # 無論各個平台,無論是否有cookie都驗證 URL 是否有效
-        is_valid, message, available_formats = validate_url(url, cookie_path)
+        is_valid, message, available_formats, available_resolutions = validate_url(url, cookie_path)
         if is_valid:
-            print(f"/verify_download 驗證成功\n標題：{message}\ncookie_path: {cookie_path}\n可用格式：{', '.join(available_formats)}\n")
+            print(f"/verify_download 驗證成功\n標題：{message}\ncookie_path: {cookie_path}\n可用格式：{', '.join(available_formats)}\n可用解析度：{', '.join(available_resolutions)}\n")
             return jsonify({
                 'status': 'success', #驗證成功
                 'message': message,  #驗證成功訊息
-                'available_formats': available_formats #回傳可用格式['mp3', 'mp4']
-                }), 200
+                'available_formats': available_formats, #回傳可用格式['mp3', 'mp4']
+                'available_resolutions': available_resolutions #回傳可用解析度['360p', '480p']
+            }), 200
         else:
             return jsonify({'status': 'error', 'message': message}), 400
             
